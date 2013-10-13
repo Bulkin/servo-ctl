@@ -12,3 +12,7 @@ all:
 
 tests:
 	${CC} ${CFLAGS} ${TESTS} -o test
+
+clean:
+	rm ${PROG_NAME}
+	rm test

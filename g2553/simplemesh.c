@@ -56,9 +56,53 @@ int make_send_data_command(uint8_t *packet_buf, uint8_t p_id,
 	return build_packet(packet_buf, payload_size);
 }
 
-int sm_parse_command_stream(getchar_func next_char)
+typedef enum {
+	START,
+	SIZE,
+	PAYLOAD,
+	CRC
+} packet_parser_state;
+
+extern void dispatch_cmd(uint8_t *cmd, int size);
+
+int sm_parse_packet_stream(uint8_t c)
 {
-	while (1) {
-		
+	static packet_parser_state state;
+	static uint8_t packet_buf[SM_MAX_PACKET_SIZE];
+	static int size;
+	static int idx;
+	uint16_t crc;
+	
+	switch (state) {
+
+	case START:
+		if (c == SM_START_BYTE) {
+			idx = 0;
+			state = SIZE;
+		}
+		break;
+
+	case SIZE:
+		size = c;
+		if (size > (SM_MAX_PACKET_SIZE - 2))
+			state = START;
+		else
+			state = PAYLOAD;
+		break;
+
+	case PAYLOAD:
+		packet_buf[idx++] = c;
+		if (idx == (size + 2))
+			state = CRC;
+		else
+			break;
+
+	case CRC:
+		crc = (packet_buf[size+1] << 8) | packet_buf[size];
+		if (crc == calc_crc(packet_buf, size))
+			dispatch_cmd(packet_buf, size);
+		state = START;
 	}
+
+	return 0;
 }

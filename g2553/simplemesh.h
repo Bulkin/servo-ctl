@@ -12,6 +12,10 @@ int make_send_data_command(uint8_t *packet_buf, uint8_t p_id,
                            uint16_t addr, char* data, int data_size);
 
 
+/* Main loop that parses a packet stream defined by the next_char function
+   NON-REENTRANT */
+int sm_parse_packet_stream(uint8_t c);
+
 typedef char (*getchar_func)();
 
 /* protocol constants */
