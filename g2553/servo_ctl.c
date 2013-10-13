@@ -30,18 +30,18 @@ void test_servo_ctl()
 
 void parse_command(char *cmdline, int size)
 {
-	if (size >= (CMDLINE_SIZE - 3)) {
+	if (size < 4) {
 		printf("e Command too short\n");
 		return;
 	}
 	switch (cmdline[0]) {
 	case 'p' : 
 		if (servo_read_params(cmdline+2) != 0)
-			printf("e Couldn't read params\n");
+			printf("e Couldn't read params: %s\n", cmdline+2);
 		break;
 	case 's' : 
 		if (servo_read_val(cmdline+2) != 0)
-			printf("e Couldn't read value\n");
+			printf("e Couldn't read value: %s\n", cmdline+2);
 		break;
 	case 'g' :
 		servo_print_cur(0);
@@ -64,10 +64,11 @@ void dispatch_cmd(uint8_t *cmd, int size)
 #define MAX_MSG_SIZE (SM_MAX_PACKET_SIZE - 10)
 #define DEST_ADDR 0x0004
 
+static char packet_buf[SM_MAX_PACKET_SIZE];
+
 int putchar(int c)
 {
 	static uint8_t buf[MAX_MSG_SIZE];
-	static char packet_buf[SM_MAX_PACKET_SIZE];
 	static int idx;
 	uint8_t p_id;
 	
@@ -83,18 +84,36 @@ int putchar(int c)
 	return c;
 }
 
+void test_loop()
+{
+	while (1) {
+		P1OUT ^= BIT0 | BIT6;
+		printf("test\n");
+		brief_pause(60000); 
+	}
+}
+
 int main()
 {
 	WDTCTL = WDTPW + WDTHOLD;                 // Stop WDT
-
 	P1DIR |= BIT0 | BIT6;
-	P1OUT = BIT0 | BIT6;
+	P1OUT = BIT6;
+
 	init_uart(UART_BR_115200);
+	int packet_size = make_uart_9600_command(packet_buf);
+	uart_send_data(packet_buf, packet_size);
+
+	brief_pause(60000);
+	init_uart(UART_BR_9600);
+
 	init_pwm();
+	servo_read_params("0 20000 1400 400");
+	servo_read_params("1 20000 1500 500");
+	servo_read_val("0 50");
+	servo_read_val("1 -50");
 
 	while (1) {
-		P1OUT ^= BIT0;
-		printf("test\n");
-		brief_pause(60000); 
+		P1OUT ^= BIT6;		
+		sm_parse_packet_stream(uart_getchar());
 	}
 }

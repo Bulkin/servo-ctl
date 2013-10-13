@@ -11,6 +11,7 @@ int build_packet(uint8_t *packet_buf, uint8_t payload_size);
 int make_send_data_command(uint8_t *packet_buf, uint8_t p_id,
                            uint16_t addr, char* data, int data_size);
 
+int make_uart_9600_command(uint8_t *packet_buf);
 
 /* Main loop that parses a packet stream defined by the next_char function
    NON-REENTRANT */

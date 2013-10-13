@@ -1,6 +1,7 @@
 #include "simplemesh.h"
 
 #include <string.h>
+#include <stdio.h>
 
 /* Packet format:
   | START | SIZE | PAYLOAD | CRC |
@@ -56,6 +57,18 @@ int make_send_data_command(uint8_t *packet_buf, uint8_t p_id,
 	return build_packet(packet_buf, payload_size);
 }
 
+int make_uart_9600_command(uint8_t *packet_buf)
+{
+	int payload_size = 0;
+	packet_buf[2 + payload_size++] = CMD_TX_SET_UART_MODE;
+	packet_buf[2 + payload_size++] = DATA_BITS_8;
+	packet_buf[2 + payload_size++] = PARITY_NONE;
+	packet_buf[2 + payload_size++] = STOP_BITS_1;
+	packet_buf[2 + payload_size++] = BAUD_9600;
+
+	return build_packet(packet_buf, payload_size);
+}
+
 typedef enum {
 	START,
 	SIZE,
@@ -92,7 +105,7 @@ int sm_parse_packet_stream(uint8_t c)
 
 	case PAYLOAD:
 		packet_buf[idx++] = c;
-		if (idx == (size + 2))
+		if (idx >= (size + 2))
 			state = CRC;
 		else
 			break;
@@ -102,7 +115,7 @@ int sm_parse_packet_stream(uint8_t c)
 		if (crc == calc_crc(packet_buf, size)) {
 			packet_buf[size] = 0;
 			dispatch_cmd(packet_buf, size);
-		}
+		} 
 		state = START;
 	}
 

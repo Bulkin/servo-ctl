@@ -1,7 +1,6 @@
 #include "servo.h"
 
 #include <msp430g2553.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -56,21 +55,33 @@ void servo_set_val(uint ch, int val)
 
 }
 
+char *next_token(char *str, char del)
+{
+	int flag = 0;
+	for (int i = 0; str[i] != 0; ++i)
+		if (str[i] == del)
+			flag = 1;
+		else 
+			if (flag == 1)
+				return str + i;
+	return NULL;
+}
+
 int servo_read_params(char* params)
 {
-	char *ptr = strtok(params, " ");
+	char *ptr = params;
 	if (NULL == ptr) return 1;
 	uint ch = strtoul(ptr, NULL, 10);
 	
-	ptr = strtok(NULL, " "); 
+	ptr = next_token(ptr, ' '); 
 	if (NULL == ptr) return 1; 
 	uint period = strtoul(ptr, NULL, 10);
 
-	ptr = strtok(NULL, " "); 
+	ptr = next_token(ptr, ' '); 
 	if (NULL == ptr) return 1; 
 	uint mean = strtoul(ptr, NULL, 10);
 
-	ptr = strtok(NULL, " "); 
+	ptr = next_token(ptr, ' '); 
 	if (NULL == ptr) return 1; 
 	uint dev = strtoul(ptr, NULL, 10);
 
@@ -81,11 +92,11 @@ int servo_read_params(char* params)
 
 int servo_read_val(char *val)
 {
-	char *ptr = strtok(val, " ");
+	char *ptr = val;
 	if (NULL == ptr) return 1;
 	uint ch = strtoul(ptr, NULL, 10);
 	
-	ptr = strtok(NULL, " "); 
+	ptr = next_token(ptr, ' '); 
 	if (NULL == ptr) return 1; 
 	int v = strtol(ptr, NULL, 10);
 	
