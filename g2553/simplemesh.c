@@ -99,8 +99,10 @@ int sm_parse_packet_stream(uint8_t c)
 
 	case CRC:
 		crc = (packet_buf[size+1] << 8) | packet_buf[size];
-		if (crc == calc_crc(packet_buf, size))
+		if (crc == calc_crc(packet_buf, size)) {
+			packet_buf[size] = 0;
 			dispatch_cmd(packet_buf, size);
+		}
 		state = START;
 	}
 

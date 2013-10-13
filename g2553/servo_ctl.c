@@ -28,37 +28,59 @@ void test_servo_ctl()
 	servo_print_cur(1);
 }
 
-void parse_commands()
+void parse_command(char *cmdline, int size)
 {
-	char cmdline[CMDLINE_SIZE];
-	while (1) {
-		int left = uart_read_line(cmdline, CMDLINE_SIZE);
-		if (left >= (CMDLINE_SIZE - 3)) {
-			printf("Command too short\r\n");
-			continue;
-		}
-		switch (cmdline[0]) {
-		case 'p' : 
-			if (servo_read_params(cmdline+2) != 0)
-				printf("Couldn't read params\r\n");
-			break;
-		case 's' : 
-			if (servo_read_val(cmdline+2) != 0)
-				printf("Couldn't read value\r\n");
-			break;
-		case 'g' :
-			servo_print_cur(0);
-			servo_print_cur(1);
-			break;
-		default:
-			printf("Command not recognized\r\n");
-		}
+	if (size >= (CMDLINE_SIZE - 3)) {
+		printf("e Command too short\n");
+		return;
+	}
+	switch (cmdline[0]) {
+	case 'p' : 
+		if (servo_read_params(cmdline+2) != 0)
+			printf("e Couldn't read params\n");
+		break;
+	case 's' : 
+		if (servo_read_val(cmdline+2) != 0)
+			printf("e Couldn't read value\n");
+		break;
+	case 'g' :
+		servo_print_cur(0);
+		servo_print_cur(1);
+		break;
+	default:
+		printf("e Command not recognized\n");
 	}
 }
 
+void dispatch_cmd(uint8_t *cmd, int size)
+{
+	switch (cmd[0]) {
+	case CMD_RX_DATA_INDICATION:
+		parse_command(cmd + 6, size - 6);
+		break;
+	}
+}
+
+#define MAX_MSG_SIZE (SM_MAX_PACKET_SIZE - 10)
+#define DEST_ADDR 0x0004
+
 int putchar(int c)
 {
-	return uart_send_char(c);
+	static uint8_t buf[MAX_MSG_SIZE];
+	static char packet_buf[SM_MAX_PACKET_SIZE];
+	static int idx;
+	uint8_t p_id;
+	
+	buf[idx++] = c;
+	if ((idx == MAX_MSG_SIZE) || c == '\n') {
+		int packet_size = make_send_data_command(packet_buf, p_id++,
+		                                         DEST_ADDR,
+		                                         buf, idx);
+		uart_send_data(packet_buf, packet_size);
+		idx = 0;
+	}
+
+	return c;
 }
 
 int main()
@@ -70,17 +92,9 @@ int main()
 	init_uart(UART_BR_115200);
 	init_pwm();
 
-
-	char packet_buf[SM_MAX_PACKET_SIZE];
-	char data[] = "TEST";
-			
 	while (1) {
 		P1OUT ^= BIT0;
-		int packet_size = make_send_data_command(packet_buf, 14,
-		                                         0x0004,
-		                                         data, sizeof(data) - 1);
-		uart_send_data(packet_buf, packet_size);
-		/* printf("TEST\r\n"); */
+		printf("test\n");
 		brief_pause(60000); 
 	}
 }

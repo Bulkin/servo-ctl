@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define PWM_CHANNELS 2
-
 typedef struct {
 	uint period;
 	uint mean;
@@ -14,8 +12,8 @@ typedef struct {
 	int val;
 } servo_ctl;
 
-servo_ctl servos[PWM_CHANNELS] = { { 20000, 1500, 500, 0 },
-                                   { 20000, 1500, 500, 0 } };
+servo_ctl servos[] = { { 20000, 1500, 500, 0 },
+                       { 20000, 1500, 500, 0 } };
 
 /* init 2 channels for now */
 void init_pwm()
