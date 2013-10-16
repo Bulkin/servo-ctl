@@ -1,3 +1,6 @@
 servo_ctl
 test
 Project.ede
+*.pyc
+.ropeproject
+
