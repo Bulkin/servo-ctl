@@ -90,17 +90,20 @@ int servo_read_params(char* params)
 	return 0;
 }
 
+/* set values of both channels
+   command format: s #n #n */
 int servo_read_val(char *val)
 {
 	char *ptr = val;
 	if (NULL == ptr) return 1;
-	uint ch = strtoul(ptr, NULL, 10);
+	int v0 = strtoul(ptr, NULL, 10);
 	
 	ptr = next_token(ptr, ' '); 
 	if (NULL == ptr) return 1; 
-	int v = strtol(ptr, NULL, 10);
+	int v1 = strtol(ptr, NULL, 10);
 	
-	servo_set_val(ch, v);
+	servo_set_val(0, v0);
+	servo_set_val(1, v1);
 	return 0;
 }
 

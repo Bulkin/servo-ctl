@@ -107,10 +107,9 @@ int main()
 	init_uart(UART_BR_9600);
 
 	init_pwm();
-	servo_read_params("0 20000 1400 400");
+	servo_read_params("0 20000 1500 500");
 	servo_read_params("1 20000 1500 500");
-	servo_read_val("0 50");
-	servo_read_val("1 -50");
+	servo_read_val("0 0");
 
 	while (1) {
 		P1OUT ^= BIT6;		

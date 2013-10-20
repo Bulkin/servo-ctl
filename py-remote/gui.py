@@ -98,7 +98,6 @@ class App(object):
                 obj.move()
 
             tick_action()
-            pygame.time.wait(50)
             self._redraw()
 
 class Commander(object):
@@ -125,19 +124,15 @@ class Commander(object):
         x = int(-1 * pos[0] * self.max_val)
         y = int(-1 * pos[1] * self.max_val)
 
-        cmd = 's 0 ' + str(x) + '\n'
+        cmd = 's ' + str(x) + ' ' + str(y) + '\n'
         cmd = self.simplemesh.make_send_data_cmd(00, cmd)
         self.serial.write(cmd)
-        time.sleep(0.05)
-        cmd = 's 1 ' + str(y) + '\n'
-        cmd = self.simplemesh.make_send_data_cmd(00, cmd)
-        self.serial.write(cmd)
-        
+        time.sleep(0.02)
 
 def main():
     renderer = App()
     analog_stick = AnalogStick()
-    commander = Commander(analog_stick.get_pos, uart_dev = '/dev/ttyUSB2')
+    commander = Commander(analog_stick.get_pos, uart_dev = '/dev/ttyUSB0')
     #commander.reconfig_uart()
     renderer.add_drawable(Ball((100,100,200,200), analog_stick.get_pos))
     #renderer.add_drawable(Ball((100,100,200,200)))
