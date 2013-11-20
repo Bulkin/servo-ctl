@@ -4,7 +4,7 @@ import pygame
 
 class TwoAxisWidget(object):
     def __init__(self, size = (100,100), pos_func = None):
-        self.size = size
+        self.size = size[0:2]
         self.color = (32,128,32)
         self.axis_color = (64,64,64)
         self.pos = (size[0] / 2, size[1] / 2)

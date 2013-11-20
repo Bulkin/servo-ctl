@@ -28,8 +28,9 @@ class Renderer(object):
     def add_widget(self, widget, pos):
         self._widgets.append({'widget' : widget,
                               'pos'    : pos})
+        
 
-    def main_loop(self, tick_action):
+    def main_loop(self, tick_action=None):
         while self._running:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -39,5 +40,7 @@ class Renderer(object):
                 obj['widget'].move()
 
             self._redraw()
-            tick_action()
+
+            if tick_action:
+                tick_action()
 

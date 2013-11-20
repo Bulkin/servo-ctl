@@ -22,6 +22,9 @@ void test_simplemesh()
 	                                  data1, data1_size);
 	print_data(packet_buf, size);
 
+	size = make_uart_9600_command(packet_buf);
+	print_data(packet_buf, size);
+
 	uint8_t data2[] = { 171, 10, 34, 0, 0, 0, 255, 
 	                    199, 84, 69, 83, 84, 96, 173 };
 	int data2_size = sizeof(data2);

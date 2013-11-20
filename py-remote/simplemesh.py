@@ -77,10 +77,12 @@ class SimpleMeshParser(object):
  
     def make_reconfig_uart_cmd(self, baudrate):
         packet = self.COMMAND_TYPES['set_uart_mode_request']
-        packet += '\x00'
+        packet += '\x03'
         packet += '\x00'
         packet += '\x00'
         packet += self.BAUDRATEDICT[baudrate]
+
+        print map(lambda x: hex(ord(x)), self.make_packet(packet))
 
         return self.make_packet(packet)
         

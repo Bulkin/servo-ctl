@@ -1,1 +1,1 @@
-__all__ = ['renderer', 'twoaxiswidget', 'input']
+__all__ = ["renderer", "twoaxiswidget", "input_devs"]
