@@ -38,7 +38,7 @@ def main():
     r = renderer.Renderer('servo control')
     analog_stick = input_devs.AnalogStick()
     commander = Commander(analog_stick.get_pos, uart_dev = '/dev/ttyUSB0')
-    commander.reconfig_uart()
+    #commander.reconfig_uart()
     #commander.serial.baudrate = 115200
     r.add_widget(twoaxiswidget.TwoAxisWidget((200,200), 
                                              analog_stick.get_pos),

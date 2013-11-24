@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "timer.h"
 #include "servo.h"
 #include "uart.h"
 #include "simplemesh.h"
@@ -28,6 +29,19 @@ void test_servo_ctl()
 	servo_print_cur(1);
 }
 
+static int servo_watchdog_counter = 0;
+
+void servo_watchdog(unsigned int counter)
+{
+	static int last_value = 0;
+	if (counter % 5 == 0) {
+		if (servo_watchdog_counter == last_value)
+			servo_read_val("0 0");
+		else
+			last_value = servo_watchdog_counter;
+	}
+}
+
 void parse_command(char *cmdline, int size)
 {
 	if (size < 4) {
@@ -42,6 +56,7 @@ void parse_command(char *cmdline, int size)
 	case 's' : 
 		if (servo_read_val(cmdline+2) != 0)
 			printf("e Couldn't read value: %s\n", cmdline+2);
+		servo_watchdog_counter += 1;
 		break;
 	case 'g' :
 		servo_print_cur(0);
@@ -93,11 +108,25 @@ void test_loop()
 	}
 }
 
+void blink_led(unsigned int cnt)
+{
+	P1OUT ^= BIT0;
+}
+
+void blink_led_2(unsigned int cnt)
+{
+	P1OUT ^= BIT6;
+}
+
 int main()
 {
 	WDTCTL = WDTPW + WDTHOLD;                 // Stop WDT
 	P1DIR |= BIT0 | BIT6;
 	P1OUT = BIT6;
+
+	timer_add(50000, blink_led);
+	timer_add(50000, servo_watchdog);
+	timer_init();
 
 	init_uart(UART_BR_115200);
 	int packet_size = make_uart_9600_command(packet_buf);

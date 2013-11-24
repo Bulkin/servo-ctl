@@ -1,6 +1,6 @@
 PROG_NAME = servo_ctl
 
-SOURCES = servo_ctl.c servo.c uart.c simplemesh.c
+SOURCES = servo_ctl.c timer.c servo.c uart.c simplemesh.c
 TESTS = simplemesh.c tests.c
 
 MSP430_CC = msp430-gcc
