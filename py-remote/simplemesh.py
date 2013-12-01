@@ -58,9 +58,15 @@ class SimpleMeshParser(object):
         packet = self.START_BYTE
         if len(payload) > self.MAX_PAYLOAD_SIZE:
             raise RuntimeError('payload too big')
+
+        crc = self._calc_crc(payload)
+        while self.START_BYTE in crc:
+            payload += ' '
+            crc = self._calc_crc(payload)
+            
         packet += chr(len(payload))
         packet += payload
-        packet += self._calc_crc(payload)
+        packet += crc
         return packet
 
     def make_send_data_cmd(self, addr, data):
